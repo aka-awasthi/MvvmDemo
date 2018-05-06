@@ -15,8 +15,21 @@ public class CategoryEntity {
     @PrimaryKey
     int id;
 
-    String name;
+    public int getId() {
+        return id;
+    }
 
-    @TypeConverters({DataConverter.class})
-    List<Integer> child_categories;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    String name;
 }
