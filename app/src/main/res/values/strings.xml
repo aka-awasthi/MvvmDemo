@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MvvmDemo</string>
+    <string name="text">testing</string>
     <string name="action_settings">Settings</string>
 </resources>
