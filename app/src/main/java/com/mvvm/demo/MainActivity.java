@@ -7,6 +7,9 @@ import android.view.MenuItem;
 
 import com.mvvm.demo.api.sampleapi.SampleApi;
 import com.mvvm.demo.db.AppDatabase;
+import com.mvvm.demo.fragment.CategoryFragment;
+
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,7 +17,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        getSupportFragmentManager().beginTransaction().replace(R.id.am_nvfl,new CategoryFragment()).addToBackStack(null).commit();
         new SampleApi(AppDatabase.getDatabase(this.getApplication()));
+
     }
 
     @Override

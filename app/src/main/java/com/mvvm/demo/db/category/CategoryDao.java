@@ -17,8 +17,8 @@ public interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(CategoryEntity categoryEntity);
 
-    @Query("select * from tbl_category")
-    LiveData<List<CategoryEntity>> getAll();
+    @Query("select id,name from tbl_category where id not in (select childcatid from tbl_childcategory)")
+    LiveData<List<CategoryEntity>> getCategory();
 
     @Query("select * from tbl_category where id = 1")
     LiveData<CategoryEntity> getCategoryEntity();
