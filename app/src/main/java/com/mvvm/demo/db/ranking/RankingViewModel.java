@@ -13,17 +13,19 @@ import com.mvvm.demo.db.product.ProductViewModel;
 import java.util.List;
 
 public class RankingViewModel extends AndroidViewModel{
-    private final LiveData<List<RankingEntity>> list;
+
+    private final LiveData<List<String>> rankinglist;
     private AppDatabase appDatabase;
     public RankingViewModel(@NonNull Application application) {
         super(application);
         appDatabase = AppDatabase.getDatabase(this.getApplication());
-        list = appDatabase.getRankingDao().getAll();
+        rankinglist = appDatabase.getRankingDao().getAll();
     }
 
-    public LiveData<List<RankingEntity>> getList() {
-        return list;
+    public LiveData<List<String>> getList() {
+        return rankinglist;
     }
+
 
     public void insertAll(RankingEntity[] entities){
         new InsertAsyncTask(appDatabase).execute(entities);

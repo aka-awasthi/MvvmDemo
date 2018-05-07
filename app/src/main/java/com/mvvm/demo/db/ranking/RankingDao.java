@@ -19,6 +19,7 @@ public interface RankingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(RankingEntity rankingEntity);
 
-    @Query("select * from tbl_ranking")
-    LiveData<List<RankingEntity>> getAll();
+
+    @Query("select distinct ranking from tbl_ranking")
+    LiveData<List<String>> getAll();
 }

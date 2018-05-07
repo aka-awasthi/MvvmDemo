@@ -18,10 +18,18 @@ public class ProductViewModel extends AndroidViewModel {
     public ProductViewModel(@NonNull Application application) {
         super(application);
         appDatabase = AppDatabase.getDatabase(this.getApplication());
-
     }
+
     public LiveData<List<ProductEntity>> getList(int id) {
         return appDatabase.getProductDao().getAll(id);
+    }
+
+    public LiveData<List<ProductEntity>> getList() {
+        return appDatabase.getProductDao().getAll();
+    }
+
+    public LiveData<List<ProductEntity>> getList(String ranking) {
+        return appDatabase.getProductDao().getproductEntity(ranking);
     }
 
     public void insertAll(ProductEntity[] entities){

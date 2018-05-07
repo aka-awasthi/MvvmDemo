@@ -1,9 +1,13 @@
 package com.mvvm.demo;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,13 +15,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toolbar;
 
 import com.mvvm.demo.api.sampleapi.SampleApi;
 import com.mvvm.demo.db.AppDatabase;
+import com.mvvm.demo.db.ranking.RankingViewModel;
+import com.mvvm.demo.fragment.BrowseFragment;
 import com.mvvm.demo.fragment.CategoryFragment;
 import com.mvvm.demo.fragment.ProductFragment;
+import com.mvvm.demo.fragment.RankingFragment;
 import com.mvvm.demo.interfaces.CalltoParent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements CalltoParent {
 
     @BindView(R.id.am_toolbar)
     android.support.v7.widget.Toolbar toolbar;
+    RankingViewModel rankingViewModel;
+    List<String> rankings;
 
     ActionBarDrawerToggle drawerToggle;
     @Override
@@ -52,8 +67,6 @@ public class MainActivity extends AppCompatActivity implements CalltoParent {
                 drawerlayout.openDrawer(GravityCompat.END);
             }
         });
-
-
         getSupportFragmentManager().beginTransaction().replace(R.id.am_nvfl,new CategoryFragment()).addToBackStack(null).commit();
         new SampleApi(AppDatabase.getDatabase(this.getApplication()));
 
@@ -72,13 +85,57 @@ public class MainActivity extends AppCompatActivity implements CalltoParent {
                 //bus.post(ToolbarEventEnum.drawer_open);
             }
         };
-
     }
+
+    AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (position == 0) {
+                BrowseFragment f = new BrowseFragment();
+                Bundle b = new Bundle();
+                b.putInt("id",0);
+                f.setArguments(b);
+                getSupportFragmentManager().beginTransaction().replace(R.id.am_mainfl,f).addToBackStack(null).commit();
+            }else {
+                RankingFragment r = new RankingFragment();
+                Bundle b = new Bundle();
+                b.putString("id",rankings.get(position));
+                r.setArguments(b);
+                getSupportFragmentManager().beginTransaction().replace(R.id.am_mainfl,r).addToBackStack(null).commit();
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.spinner);
+        rankings = new ArrayList<>();
+       final  Spinner spinner = (Spinner) MenuItemCompat.getActionView(item); // get the spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item,rankings);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(itemSelectedListener);
+        rankingViewModel = ViewModelProviders.of(this).get(RankingViewModel.class);
+        rankingViewModel.getList().observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(@Nullable List<String> strings) {
+                if (strings != null && strings.size() != 0){
+                    rankings.clear();
+                    rankings.addAll(strings);
+                    rankings.add(0,"All");
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+                            android.R.layout.simple_spinner_item,rankings);
+                    spinner.setAdapter(adapter);
+                }
+            }
+        });
         return true;
     }
 
