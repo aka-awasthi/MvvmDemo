@@ -15,6 +15,7 @@ import com.mvvm.demo.db.product.ProductDao;
 import com.mvvm.demo.db.product.ProductEntity;
 import com.mvvm.demo.db.ranking.RankingDao;
 import com.mvvm.demo.db.ranking.RankingEntity;
+
 import com.mvvm.demo.db.variants.VariantDao;
 import com.mvvm.demo.db.variants.VariantEntity;
 
@@ -42,6 +43,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract VariantDao getVariantDao();
     public abstract ChildCatDao getChildCatDao();
     public abstract RankingDao getRankingDao();
+
 
 
 

@@ -17,8 +17,8 @@ public interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(ProductEntity productEntity);
 
-    @Query("select * from tbl_product")
-    LiveData<List<ProductEntity>> getAll();
+    @Query("select * from tbl_product  where category_id = :id")
+    LiveData<List<ProductEntity>> getAll(int id);
 
 //    @Query("update tbl_product set order_count = :count where id = :productid")
 //    void updateOrdercount(int productid,int count);

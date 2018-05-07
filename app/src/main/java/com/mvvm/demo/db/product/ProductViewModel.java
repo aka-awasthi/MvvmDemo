@@ -14,15 +14,14 @@ import java.util.List;
 
 public class ProductViewModel extends AndroidViewModel {
 
-    private final LiveData<List<ProductEntity>> list;
     private AppDatabase appDatabase;
     public ProductViewModel(@NonNull Application application) {
         super(application);
         appDatabase = AppDatabase.getDatabase(this.getApplication());
-        list = appDatabase.getProductDao().getAll();
+
     }
-    public LiveData<List<ProductEntity>> getList() {
-        return list;
+    public LiveData<List<ProductEntity>> getList(int id) {
+        return appDatabase.getProductDao().getAll(id);
     }
 
     public void insertAll(ProductEntity[] entities){

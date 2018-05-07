@@ -13,6 +13,7 @@ import java.util.List;
 
 public class CategoryViewModel extends AndroidViewModel {
     private final LiveData<List<CategoryEntity>> list;
+
     private AppDatabase appDatabase;
     public CategoryViewModel(@NonNull Application application) {
         super(application);
@@ -21,6 +22,10 @@ public class CategoryViewModel extends AndroidViewModel {
     }
     public LiveData<List<CategoryEntity>> getList() {
         return list;
+    }
+
+    public LiveData<List<CategoryEntity>> getChildList(int id) {
+        return appDatabase.getCategoryDao().getCategory(id);
     }
 
     public void insertAll(CategoryEntity[] entities){

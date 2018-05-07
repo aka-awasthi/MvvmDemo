@@ -2,4 +2,8 @@
     <string name="app_name">MvvmDemo</string>
     <string name="text">testing</string>
     <string name="action_settings">Settings</string>
+    <string name="action_rankings">Rankings</string>
+
+    <string name="drawer_open">opened</string>
+    <string name="drawer_closed">closed</string>
 </resources>

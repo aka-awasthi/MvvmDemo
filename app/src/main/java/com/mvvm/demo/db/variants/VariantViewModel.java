@@ -14,15 +14,13 @@ import java.util.List;
 
 public class VariantViewModel extends AndroidViewModel{
 
-    private final LiveData<List<VariantEntity>> list;
     private AppDatabase appDatabase;
     public VariantViewModel(@NonNull Application application) {
         super(application);
         appDatabase = AppDatabase.getDatabase(this.getApplication());
-        list = appDatabase.getVariantDao().getAll();
     }
-    public LiveData<List<VariantEntity>> getList() {
-        return list;
+    public LiveData<List<VariantEntity>> getList(int id) {
+        return  appDatabase.getVariantDao().getAll(id);
     }
 
     public void insertAll(VariantEntity[] entities){

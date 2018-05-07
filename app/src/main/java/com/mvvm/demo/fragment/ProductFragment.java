@@ -1,13 +1,14 @@
 package com.mvvm.demo.fragment;
 
+
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,48 +17,35 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mvvm.demo.R;
 import com.mvvm.demo.db.category.CategoryEntity;
 import com.mvvm.demo.db.category.CategoryViewModel;
-import com.mvvm.demo.interfaces.CalltoParent;
+import com.mvvm.demo.db.product.ProductEntity;
+import com.mvvm.demo.db.product.ProductViewModel;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class ChildCategoryFragment extends Fragment {
+public class ProductFragment extends Fragment{
 
     final String TAG = getClass().getName();
-    @BindView(R.id.ccf_rv)
+    @BindView(R.id.cf_rv)
     RecyclerView rv;
-    CategoryViewModel categoryViewModel;
-    List<CategoryEntity> list;
-    ChildCategoryAdapter categoryAdapter;
-    int id = 0;
+    List<ProductEntity> list;
+    ProductAdapter adapter;
+    ProductViewModel productViewModel;
+    int id=0;
     boolean proceed = false;
-    CalltoParent calltoParent;
-
-    @OnClick(R.id.ccf_btnback)
-    public void onBack(){
-        getActivity().getSupportFragmentManager().popBackStack();
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-       calltoParent = (CategoryFragment)this.getTargetFragment();
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.childcategoryfragment,container,false);
+        View view = inflater.inflate(R.layout.categoryfragment,container,false);
         ButterKnife.bind(this,view);
         return view;
     }
@@ -65,36 +53,36 @@ public class ChildCategoryFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        id = getArguments().getInt("id");
-        Log.d(TAG,"id is "+id);
+        Log.d(TAG,"product called");
         list = new ArrayList<>();
+        id = getArguments().getInt("id");
         rv.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-        categoryAdapter=new ChildCategoryAdapter();
-        rv.setAdapter(categoryAdapter);
-        categoryViewModel = ViewModelProviders.of(this).get(CategoryViewModel.class);
+        adapter=new ProductAdapter();
+        rv.setAdapter(adapter);
+        productViewModel = ViewModelProviders.of(this).get(ProductViewModel.class);
         new AsyncDbCall().execute();
-
     }
 
-    class  AsyncDbCall extends AsyncTask<Void,Void,Void>{
+    class  AsyncDbCall extends AsyncTask<Void,Void,Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            categoryViewModel.getChildList(id).observe(ChildCategoryFragment.this, new Observer<List<CategoryEntity>>() {
+
+            productViewModel.getList(id).observe(ProductFragment.this, new Observer<List<ProductEntity>>() {
                 @Override
-                public void onChanged(@Nullable List<CategoryEntity> categoryEntities) {
-                    if (categoryEntities != null && categoryEntities.size() != 0) {
+                public void onChanged(@Nullable List<ProductEntity> productEntities) {
+                    if (productEntities != null && productEntities.size()!=0) {
                         list.clear();
-                        list.addAll(categoryEntities);
-                        Log.d(TAG,"found");
+                        list.addAll(productEntities);
+//                        adapter.notifyDataSetChanged();
                         proceed = true;
-                    }else{
-                        Log.d(TAG,"not found");
+                    }else {
                         proceed = false;
                     }
                     onpostexecute();
                 }
             });
+
             return null;
         }
 
@@ -102,13 +90,11 @@ public class ChildCategoryFragment extends Fragment {
         private void onpostexecute(){
             try {
                 if (proceed) {
-                    categoryAdapter.notifyDataSetChanged();
+                    adapter.notifyDataSetChanged();
                 } else {
-                    Log.d(TAG, "child not present now");
-//                    ProductFragment f = new ProductFragment();
-//                    getActivity().getSupportFragmentManager().beginTransaction().add(R.id.am_mainfl,f).addToBackStack(null).commit();
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    calltoParent.onpreviouscallback(id);
+                    Log.d(TAG, "product not present now");
+                    Toast.makeText(getActivity(), "Products not found", Toast.LENGTH_SHORT).show();
+//                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -116,7 +102,7 @@ public class ChildCategoryFragment extends Fragment {
         }
     }
 
-    class ChildCategoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -128,10 +114,10 @@ public class ChildCategoryFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            CategoryEntity cdb = list.get(position);
-            RegularRow
-                    row = ((RegularRow)holder);
-            row.tv.setText(cdb.getName());
+            ProductEntity cdb = list.get(position);
+            RegularRow row = ((RegularRow)holder);
+            String text = cdb.getName()+" | "+cdb.getTax_value()+"%  and click to see variants";
+            row.tv.setText(text);
         }
 
         @Override
@@ -153,21 +139,19 @@ public class ChildCategoryFragment extends Fragment {
                 super(itemView);
                 ButterKnife.bind(this,itemView);
                 itemView.setOnClickListener(this);
-
             }
 
             @Override
             public void onClick(View view) {
-                id = list.get(getAdapterPosition()).getId();
-                ChildCategoryFragment childCategoryFragment = new ChildCategoryFragment();
+                int id =  list.get(getAdapterPosition()).getId();
+                BottomSheetDialogFragment lbottomSheetDialogFragment = new VariantBottomsheet();
                 Bundle b = new Bundle();
                 b.putInt("id",id);
-                childCategoryFragment.setArguments(b);
-                childCategoryFragment.setTargetFragment(ChildCategoryFragment.this.getTargetFragment(),100);
-                getActivity().getSupportFragmentManager().beginTransaction().add(R.id.am_nvfl,childCategoryFragment).addToBackStack(null).commit();
-//                new AsyncDbCall().execute();
+                lbottomSheetDialogFragment.setArguments(b);
+                //show it
+                lbottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), lbottomSheetDialogFragment.getTag());
             }
         }
-
     }
+
 }

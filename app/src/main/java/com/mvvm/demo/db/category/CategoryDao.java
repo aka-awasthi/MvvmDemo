@@ -20,6 +20,9 @@ public interface CategoryDao {
     @Query("select id,name from tbl_category where id not in (select childcatid from tbl_childcategory)")
     LiveData<List<CategoryEntity>> getCategory();
 
+    @Query("select * from tbl_category where id in (select childcatid from tbl_childcategory where categoryid = :id)")
+    LiveData<List<CategoryEntity>> getCategory(int id);
+
     @Query("select * from tbl_category where id = 1")
     LiveData<CategoryEntity> getCategoryEntity();
 }

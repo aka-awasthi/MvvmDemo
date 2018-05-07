@@ -1,5 +1,6 @@
 package com.mvvm.demo.fragment;
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -15,9 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.mvvm.demo.MainActivity;
 import com.mvvm.demo.R;
 import com.mvvm.demo.db.category.CategoryEntity;
 import com.mvvm.demo.db.category.CategoryViewModel;
+import com.mvvm.demo.interfaces.CalltoParent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +28,14 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CategoryFragment extends Fragment {
+public class CategoryFragment extends Fragment implements CalltoParent {
 
     final String TAG = getClass().getName();
     @BindView(R.id.cf_rv) RecyclerView rv;
     CategoryViewModel categoryViewModel;
     List<CategoryEntity> list;
     CategoryAdapter categoryAdapter;
+    CalltoParent calltoParent;
 
     @Nullable
     @Override
@@ -39,6 +43,13 @@ public class CategoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.categoryfragment,container,false);
         ButterKnife.bind(this,view);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        calltoParent = ((MainActivity)activity);
+
     }
 
     @Override
@@ -57,11 +68,16 @@ public class CategoryFragment extends Fragment {
                     list.addAll(categoryEntities);
                     categoryAdapter.notifyDataSetChanged();
                     Log.d(TAG,"size is "+categoryEntities.size());
-
                 }
             }
         });
     }
+
+    @Override
+    public void onpreviouscallback( int id) {
+        calltoParent.onpreviouscallback(id);
+    }
+
 
 
     class CategoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -101,15 +117,20 @@ public class CategoryFragment extends Fragment {
             public RegularRow(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this,itemView);
-
+                itemView.setOnClickListener(this);
             }
 
             @Override
             public void onClick(View view) {
-
+              int id =  list.get(getAdapterPosition()).getId();
+              ChildCategoryFragment childCategoryFragment = new ChildCategoryFragment();
+              Bundle b = new Bundle();
+              b.putInt("id",id);
+              childCategoryFragment.setArguments(b);
+              childCategoryFragment.setTargetFragment(CategoryFragment.this,100);
+              getActivity().getSupportFragmentManager().beginTransaction().add(R.id.am_nvfl,childCategoryFragment).addToBackStack(null).commit();
             }
         }
-
     }
 
 

@@ -18,9 +18,7 @@ public interface VariantDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(VariantEntity variantEntity);
 
-    @Query("select * from tbl_variant")
-    LiveData<List<VariantEntity>> getAll();
+    @Query("select * from tbl_variant where product_id = :id")
+    LiveData<List<VariantEntity>> getAll(int id);
 
-    @Query("select * from tbl_variant where id = 1")
-    LiveData<VariantEntity> getVariantEntity();
 }
