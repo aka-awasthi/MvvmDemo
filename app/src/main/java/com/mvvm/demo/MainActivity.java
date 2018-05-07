@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements CalltoParent {
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(itemSelectedListener);
         rankingViewModel = ViewModelProviders.of(this).get(RankingViewModel.class);
+
         rankingViewModel.getList().observe(this, new Observer<List<String>>() {
             @Override
             public void onChanged(@Nullable List<String> strings) {
